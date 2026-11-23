@@ -7,7 +7,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = os.environ.get("DATABASE_PATH", os.path.join(BASE_DIR, "lablink.db"))
 app = Flask(__name__)
-app.secret_key = os.environ.get("SECRET_KEY", "dev-only-change-this-secret")
+app.secret_key = os.environ.get("SECRET_KEY") or secrets.token_hex(32)
 app.config["JSON_SORT_KEYS"] = False
 
 def db():
