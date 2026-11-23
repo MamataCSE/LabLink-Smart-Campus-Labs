@@ -98,7 +98,28 @@ def overlaps(equipment_id, start_at, end_at):
       WHERE equipment_id=? AND status='Confirmed' AND start_at < ? AND end_at > ?""",
       (equipment_id, end_at, start_at)).fetchone()[0]
 
+
 def available_units(equipment, start_at=None, end_at=None):
+    if start_at and end_at:
+        used = db().execute("""
+            SELECT COUNT(*) FROM bookings
+            WHERE equipment_id=?
+            AND status='Confirmed'
+            AND start_at < ?
+            AND end_at > ?
+        """, (equipment["id"], end_at, start_at)).fetchone()[0]
+    else:
+        now = datetime.now().isoformat(timespec="minutes")
+        used = db().execute("""
+            SELECT COUNT(*) FROM bookings
+            WHERE equipment_id=?
+            AND status='Confirmed'
+            AND start_at <= ?
+            AND end_at > ?
+        """, (equipment["id"], now, now)).fetchone()[0]
+
+    return max(0, equipment["total_units"] - used)
+
     if start_at and end_at:
         used = db().execute("""SELECT COUNT(*) FROM bookings WHERE equipment_id=?
           AND status='Confirmed' AND start_at < ? AND end_at > ?""",
